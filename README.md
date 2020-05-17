@@ -8,6 +8,8 @@
 Append the following lines of code to the `description.ext`:
 
 ```sqf
+#include "node_modules\grad-bodycam\grad_bodycam.hpp"
+
 class CfgFunctions {
     #include "node_modules\grad-bodycam\cfgFunctions.hpp"
 };

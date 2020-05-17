@@ -1,30 +1,18 @@
 #include "script_component.hpp"
+#include "..\dialog\defines.hpp"
+
 #define INTERLACING_ROUND_TIME      90
-#define INTERLACE_ALPHA             0.3
-#define VIGNETTE_ALPHA              0.4
-#define STATIC_ALPHA                0.8
+
 #define STATIC_HANGTIME             0.05
 #define STATIC_MAXWAIT              60
 #define STATIC_CONTINUATIONCHANCE   92
 
 
-_display = (findDisplay 46) createDisplay "RscDisplayEmpty";
+_display = (findDisplay 46) createDisplay "grad_bodycam_rscOverlay";
 uiNamespace setVariable [QGVAR(bodycamOverlayDisplay),_display];
 
-_display displayAddEventHandler ["unload",{_this call FUNC(stopBodyCam)}];
-
-private _ctrlVignette = _display ctrlCreate ["RscVignette",-1];
-_ctrlVignette ctrlSetTextColor [0, 0, 0, VIGNETTE_ALPHA];
-_ctrlVignette ctrlSetText "a3\ui_f\data\gui\rsccommon\rscvignette\vignette_gs.paa";
-
-// INTERLACING =================================================================
-private _ctrlInterlacing1 = _display ctrlCreate ["RscVignette",-1];
-_ctrlInterlacing1 ctrlSetTextColor [1, 1, 1, INTERLACE_ALPHA];
-_ctrlInterlacing1 ctrlSetText "a3\ui_f\data\igui\rsctitles\interlacing\interlacing_ca.paa";
-
-private _ctrlInterlacing2 = _display ctrlCreate ["RscVignette",-1];
-_ctrlInterlacing2 ctrlSetTextColor [1, 1, 1, INTERLACE_ALPHA];
-_ctrlInterlacing2 ctrlSetText "a3\ui_f\data\igui\rsctitles\interlacing\interlacing_ca.paa";
+private _ctrlInterlacing1 = _display displayCtrl GRAD_BODYCAM_IDC_INTERLACE1;
+private _ctrlInterlacing2 = _display displayCtrl GRAD_BODYCAM_IDC_INTERLACE2;
 
 private _fnc_animateInterlacing = {
     params [["_ctrlInterlacing1",controlNull],["_ctrlInterlacing2",controlNull],"_fnc_animateInterlacing"];
@@ -54,11 +42,8 @@ private _fnc_animateInterlacing = {
 };
 [_ctrlInterlacing1,_ctrlInterlacing2,_fnc_animateInterlacing] call _fnc_animateInterlacing;
 
-// STATIC ======================================================================
-private _ctrlStatic = _display ctrlCreate ["RscVignette",-1];
-_ctrlStatic ctrlSetTextColor [1,1,1,STATIC_ALPHA];
-_ctrlStatic ctrlSetText "";
 
+private _ctrlStatic = _display displayCtrl GRAD_BODYCAM_IDC_STATIC;
 private _fnc_animateStatic = {
     params [["_ctrlStatic",controlNull],"_fnc_animateStatic"];
 
@@ -78,24 +63,5 @@ private _fnc_animateStatic = {
     },[_ctrlStatic,_fnc_animateStatic],STATIC_HANGTIME] call CBA_fnc_waitAndExecute;
 };
 [_ctrlStatic,_fnc_animateStatic] call _fnc_animateStatic;
-
-// BUTTONS =====================================================================
-private _ctrlButtonClose = _display ctrlCreate ["RscButton",-1];
-_ctrlButtonClose ctrlSetText "EXIT";
-_ctrlButtonClose ctrlAddEventHandler ["buttonClick",{_this call FUNC(stopBodyCam)}];
-
-private _ctrlButtonPrev = _display ctrlCreate ["RscButton",-1];
-_ctrlButtonPrev ctrlSetText "<";
-_ctrlButtonPrev ctrlAddEventHandler ["buttonClick",{[-1] call FUNC(onPrevNextButton)}];
-_ctrlButtonPrev ctrlSetPosition [safezoneX + 0.25*safezoneW, safezoneY + 0.75*safezoneH];
-_ctrlButtonPrev ctrlCommit 0;
-uiNamespace setVariable [QGVAR(bodycamOverlayButtonPrev),_ctrlButtonPrev];
-
-private _ctrlButtonNext = _display ctrlCreate ["RscButton",-1];
-_ctrlButtonNext ctrlSetText ">";
-_ctrlButtonNext ctrlAddEventHandler ["buttonClick",{[1] call FUNC(onPrevNextButton)}];
-_ctrlButtonNext ctrlSetPosition [safezoneX + 0.75*safezoneW, safezoneY + 0.75*safezoneH];
-_ctrlButtonNext ctrlCommit 0;
-uiNamespace setVariable [QGVAR(bodycamOverlayButtonNext),_ctrlButtonNext];
 
 [] call FUNC(updateOverlay);
